@@ -1,0 +1,339 @@
+addEmp------------------
+
+import ReactDOM from 'react-dom';
+import React from 'react';
+import axios from 'axios';
+import querystring from 'querystring';
+
+export default class addEmp extends React.Component {
+    constructor(props) {
+      super(props);
+      // Default null value
+      this.state = {Name: '',
+      Designation: '', Salary: ''};
+
+   //Handles text change 
+      this.handleChangeN = this.handleChangeN.bind(this);
+      this.handleChangeD = this.handleChangeD.bind(this);
+      this.handleChangeS = this.handleChangeS.bind(this);
+
+  //Handles button click event
+  this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+  //Sets recent values to the components 
+    handleChangeN(event) {
+      this.setState({Name: event.target.value});
+    }
+
+    handleChangeD(event) {
+      this.setState({Designation: event.target.value});
+    }
+
+    handleChangeS(event) {
+      console.log(event.target.value);
+      this.setState({Salary: event.target.value});
+    }
+  
+    //An alert message for proper submition
+    handleSubmit(event) {
+      event.preventDefault();
+
+    var data = 
+            {
+              'Name': this.state.Name,
+              'Designation': this.state.Designation,
+             'Salary': this.state.Salary
+            };
+
+            axios.post('http://localhost:5002/addemp', querystring.stringify(data))
+            .then(res=>{console.log(res);
+            })
+            .catch(err=>{console.log(err);
+            })
+}
+        
+        
+    render() {
+      return (
+        <div className= "EmpData">
+        <form className="NewEmp" method="POST"   onSubmit={this.handleSubmit}>
+         <input id = "Name" placeholder = "Employee Name" onChange={this.handleChangeN} required/>
+         <input id = "Designation" placeholder = "Employee Designation" onChange={this.handleChangeD} required/>
+         <input id = "Salary" placeholder = "Employee Salary" onChange={this.handleChangeS} required/>
+         <input type="submit" value="Submit"/>
+        </form>
+        </div>
+      )
+    }
+  }
+  
+  ReactDOM.render(
+    <addEmp />,
+    document.getElementById('root')
+  );
+
+
+
+
+
+
+
+server.js---------------------------------------------
+
+
+var express = require("express");
+var bodyParser = require("body-parser");
+var app = express();
+var csv = require('csv');
+var obj = csv();
+
+var http = require('http');
+var fs=require('fs');
+var json2csv = require('json2csv').parse;
+var cors = require('cors');
+
+function Employee(eno, ename, sal)
+{       
+    this.Name = eno;
+    this.Designation = ename;
+    this.Salary = sal;
+};
+
+var Employees = [];
+
+obj.from.path('../serverSide/data.csv').to.array(function (data) {
+    for (var index = 0; index <  data.length; index++) {
+        Employees.push(new Employee(data[index][0], data[index][1], data[index][2] ));
+    }
+    console.log(Employees);
+});
+
+app.use(function(req, res, next){
+    res.header("Access-Contro-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(cors())
+
+
+app.get("/", function(req, res, next) {
+  res.send(Employees);
+});
+
+
+app.post('/addemp', function(request, response){
+    var fields = ['Name', 'Designation', 'Salary'];
+    console.log(request.body);
+
+var appendThis =  "\n"+request.body.Name+","+request.body.Designation+","+request.body.Salary
+
+console.log(csv);
+    fs.appendFile('data.csv', appendThis, function (err) {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+        response.send("Added Successfully");
+    });
+    console.log(request.body);
+});
+
+var port = 5002;
+app.listen(port, () =>
+    console.log("Server started on port  "+port)
+);
+
+
+
+
+app.Css------------------------------------------
+
+h2{text-align:center;}
+
+.square {
+  background-color: #696969;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  
+}
+
+.head {
+  padding-top:30px;
+  padding-bottom:30px;
+  height:30px;
+  line-height:30px;
+  border:solid 1px #E5E5E5;
+}
+
+.foot {
+  padding-top:30px;
+  padding-bottom:30px;
+  height:30px;
+  line-height:30px;
+  border:solid 1px #E5E5E5;
+}
+
+.middle {
+  
+  height:300px;
+  
+  border:solid 1px #E5E5E5;
+}
+
+
+.split{
+  float:right;
+  background-color:rgb(165, 165, 192);
+ height:500px;
+width:1045px}
+
+.split1{
+  float:left;
+  
+  background-color:rgb(151, 151, 173);
+  height:500px;
+width:318px
+
+}
+
+
+a.button {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+
+  text-decoration: none;
+  color: initial;
+}
+
+
+
+app.js-----------------------------------
+
+
+import React, {Component} from 'react';
+//import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import addEmp from './addEmp'; 
+
+class App extends Component {
+  // initially data is empty in state
+  state = { data: [] };
+
+  componentDidMount() {
+
+    fetch('http://localhost:5002/')
+      // when we get a response map the body to json
+      .then(response => response.json())
+      // and update the state data to said json
+      .then(data => this.setState({ data }));
+  }
+
+  // dispalying the table of JSON values
+  renderTable = () =>
+  { 
+    return this.state.data.map(Employee =>{
+      return (
+        <tr>
+          <td>{Employee.Name}</td>
+          <td>{Employee.Designation}</td>
+          <td>{Employee.Salary}</td>
+        </tr>
+      )
+    })
+  }
+
+  render() {
+    return (
+      //rendering the generated table
+       <Router>
+       <div> <table border="1" align= "center">
+        {this.state && this.state.data && this.renderTable()}
+        </table>
+<Link to= {'/addemp'}><button>Add employee</button></Link>
+<Switch>
+  <Route exact path='/addemp' component={addEmp}/>
+</Switch>
+</div>
+</Router>
+    );
+  }
+}
+
+export default App;
+
+
+
+ser.js=-------------------------
+
+
+var express = require("express");
+var bodyParser = require("body-parser");
+var app = express();
+var csv = require('csv');
+var obj = csv();
+
+var http = require('http');
+var fs=require('fs');
+var json2csv = require('json2csv').parse;
+var cors = require('cors');
+
+function Employee(eno, ename, sal)
+{       
+    this.Name = eno;
+    this.Designation = ename;
+    this.Salary = sal;
+};
+
+var Employees = [];
+
+obj.from.path('../serverSide/data.csv').to.array(function (data) {
+    for (var index = 0; index <  data.length; index++) {
+        Employees.push(new Employee(data[index][0], data[index][1], data[index][2] ));
+    }
+    console.log(Employees);
+});
+
+app.use(function(req, res, next){
+    res.header("Access-Contro-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(cors())
+
+
+app.get("/", function(req, res, next) {
+  res.send(Employees);
+});
+
+
+app.post('/addemp', function(request, response){
+    var fields = ['Name', 'Designation', 'Salary'];
+    console.log(request.body);
+
+var appendThis =  "\n"+request.body.Name+","+request.body.Designation+","+request.body.Salary
+
+console.log(csv);
+    fs.appendFile('data.csv', appendThis, function (err) {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+        response.send("Added Successfully");
+    });
+    console.log(request.body);
+});
+
+var port = 5002;
+app.listen(port, () =>
+    console.log("Server started on port  "+port)
+);
+
+
+

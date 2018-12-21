@@ -1,0 +1,969 @@
+paclage.jspm===========
+
+
+{
+  "name": "employee",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cors": "^2.8.5",
+    "csvtojson": "^2.0.8",
+    "json2csv": "^4.3.1",
+    "querystring": "^0.2.0",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.1.1",
+    "react-split": "^2.0.4",
+    "referrer-policy": "^1.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "proxy": "http://localhost:5000/",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
+
+
+
+
+addEmp================
+
+import ReactDOM from 'react-dom';
+import React from 'react';
+import axios from 'axios';
+import querystring from 'querystring';
+import Split from 'react-split'
+
+
+export default class addEmp extends React.Component {
+    constructor(props) {
+      super(props);
+      // Default null value
+      this.state = {Name: '',
+      Designation: '', Salary: ''};
+
+   //Handles text change 
+      this.handleChangeN = this.handleChangeN.bind(this);
+      this.handleChangeD = this.handleChangeD.bind(this);
+      this.handleChangeS = this.handleChangeS.bind(this);
+
+  //Handles button click event
+  this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+  //Sets recent values to the components 
+    handleChangeN(event) {
+      const re = /^[a-zA-Z]*$/;
+
+      // if value is not blank, then test the regex
+  
+      if (event.target.value === '' || re.test(event.target.value)) {
+         this.setState({Name: event.target.value})
+      }
+      else{
+          alert("Please enter a valid Name");
+      }
+    
+    }
+
+    handleChangeD(event) {
+      const re = /^[a-zA-Z]*$/;
+
+      // if value is not blank, then test the regex
+  
+      if (event.target.value === '' || re.test(event.target.value)) {
+         this.setState({Designation: event.target.value})
+      }
+      else{
+          alert("Please enter a valid designation");
+
+      }
+    
+    }
+
+    handleChangeS(event) {
+      console.log(event.target.value);
+
+      const re = /^[0-9\b]+$/;
+
+      // if value is not blank, then test the regex
+  
+      if (event.target.value === '' || re.test(event.target.value)) {
+         this.setState({Salary: event.target.value})
+      }
+      else{
+          alert("Please enter a valid salary");
+      }
+    
+    }
+  
+    //An alert message for proper submition
+    handleSubmit(event) {
+      event.preventDefault();
+
+    var data = 
+            {
+             'Name': this.state.Name,
+             'Designation': this.state.Designation,
+             'Salary': this.state.Salary
+            };
+
+            axios.post('http://localhost:5000/addemp', querystring.stringify(data))
+            .then(res=>{console.log(res);
+            })
+            .catch(err=>{console.log(err);
+            })
+
+            window.location.assign("/");
+}
+    
+    render() {
+      return (
+        <div className= "EmpData">
+        <form className="NewEmp" method="POST"   onSubmit={this.handleSubmit}>
+         <input id = "Name" placeholder = "Employee Name" onChange={this.handleChangeN} required/><br></br>
+         <input id = "Designation" placeholder = "Employee Designation" onChange={this.handleChangeD} required/><br></br>
+         <input id = "Salary" placeholder = "Employee Salary" onChange={this.handleChangeS} required/><br></br><br></br>
+         <input type="submit" value="Submit"/>
+        </form>
+        </div>
+      )
+    }
+  }
+  
+  ReactDOM.render(
+    <addEmp />,
+    document.getElementById('root')
+  );
+
+
+App.css==============
+
+h2{
+  text-align:center;
+  color: rgb(61, 126, 150);
+
+}
+
+h1{
+  text-align:center;
+  color: rgb(61, 126, 150);
+
+}
+
+.f {
+  padding-top:30px;
+  padding-bottom:30px;
+  height:30px;
+  line-height:30px;
+  border:solid 1px gray;
+  background-color: lightblue;
+  color: rgb(59, 59, 151);
+
+}
+
+.h {
+  padding-top:30px;
+  padding-bottom:30px;
+  height:30px;
+  line-height:30px;
+  border:solid 1px gray;
+  background-color: lightblue;
+  color: rgb(59, 59, 151);
+}
+
+.EmpData{
+  position:fixed;
+  top: 50%;
+  left: 50%;
+  width:30em;
+  margin-top: -9em; /*set to a negative number 1/2 of your height*/
+  margin-left: -15em; /*set to a negative number 1/2 of your width*/
+  border: 1px solid #ccc;
+  background-color: #f3f3f3;
+}
+
+.middle {
+  
+  height:500px;
+  overflow-y:auto;
+  border:solid 1px #E5E5E5;
+  background-color: rgb(213, 221, 228)
+
+}
+
+
+.n{
+  float:left;
+  background-color:rgb(97, 97, 221);
+ height:500px;
+width:1045px}
+
+.split1{
+  float:right;
+  
+  background-color:rgb(151, 151, 173);
+  height:500px;
+width:318px
+
+}
+
+.b{
+  position: 'absolute';
+  text-align:center;
+
+    bottom:200;
+    left:500;
+}
+
+
+App.js===================
+
+
+import React, {Component} from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import addEmp from './addEmp'; 
+import Head from './Head';
+import Foot from './Foot';
+import './App.css';
+import Split from 'react-split'
+
+
+
+class App extends Component {
+  // initially data is empty in state
+  state = { data: [] };
+
+  componentDidMount() {
+
+    fetch('http://localhost:5000/')
+      // when we get a response map the body to json
+      .then(response => response.json())
+      // and update the state data to said json
+      .then(data => this.setState({ data }));
+  }
+
+  // dispalying the table of JSON values
+  renderTable = () =>
+  { 
+    return this.state.data.map(Employee =>{
+      return (
+      
+        <table>
+        <tr>
+          <td>{Employee.Name}</td>
+          <td>{Employee.Designation}</td>
+          <td>{Employee.Salary}</td>
+        </tr>
+        </table>
+        
+      )
+    })
+  }
+
+NewPage()
+{
+
+     ReactDOM.render(<addEmp /> ,document.getElementById('Table'));
+}
+
+
+  render() {
+    return (
+      //rendering the generated table
+        <div>
+          <Head />
+          <Split sizes={[25, 75]}>
+              <nav />
+       <Router>
+       <div className = "middle">
+       <br></br>
+       <h1>Employee details</h1>
+       <br></br>
+        <table id = "Table" border="1" align= "center"> 
+        {this.state && this.state.data && this.renderTable()}
+        </table>
+<Link to= {'/addemp'}><button id = "b" onClick= {this.NewPage}>Add employee</button></Link>
+<Switch>
+  <Route exact path='/addemp' component={addEmp}/>
+</Switch>
+</div>
+</Router>
+</Split>
+<Foot />
+</div>
+    );
+  }
+}
+ 
+export default App;
+
+
+Foot.js=================
+
+import React from 'react'
+
+export default class Foot extends React.Component {
+
+render(){
+    return(
+        <div className = "f">
+        <h2> www.producthorizons.com
+        </h2></div>
+    );
+  }
+
+}
+
+
+Head.js================
+
+
+import React from 'react'
+
+export default class Head extends React.Component {
+
+//const Head = () => ( <h2> Welcome admin..!! </h2> );
+
+render(){
+    return(
+        <div className = "h">
+        <h2> Welcome admin..!! </h2>
+        </div>
+       // this.Head;
+    );
+  }
+
+}
+//export default Head;
+
+
+nav.js==================
+
+import React from 'react'
+
+export default class nav extends React.Component {
+
+render(){
+    return(
+        <div className = "n">
+        <h2> nav
+        </h2></div>
+    );
+  }
+
+}
+
+-------------------------------------------------
+
+data.csv===============
+
+LS,des2,80000
+TS,des3,60000
+VB,des2,200000
+PB,des1,180000
+AB,des3,160000
+ER,des4,876543
+sidhant,HR,233
+sample,HR,23
+g,j,h
+ghjk,hjk,hjk
+ghjk,hjk,hjk
+ghjk,hjk,hjk
+ooo,ooo,ooo
+dddd,dddd,ddddd
+c,c,d
+E,E,E
+D,D,D
+e,e,e
+dd,dd,dd
+x,x,x
+qq,qq,qq
+d,d,d
+d,d,dddd
+x,x,x
+a,a,a
+bvc,cx,cx
+sa,aa,aa
+ss,ss,ss
+qq,qq,qq
+eeeee,eeeeee,2345
+www,www,345
+,,456
+,,543
+vcx,vcx,543
+qq,qq,455
+a,aa,2
+aa,s,1
+x,x,2
+dgf,dss,234
+gfd,gfd,543
+gfds,fds,5432
+vhjkm,gbrs,3425
+gfd,fd,432
+fds,fds,567
+fd,d,43
+hgf,hgf,5
+jhf,yfg,53
+jhgf,hgfd,
+f,fgfds,543
+r,t,4
+
+
+server.js=====================
+
+var express = require("express");
+var bodyParser = require("body-parser");
+var app = express();
+var csv = require('csv');
+var obj = csv();
+
+var http = require('http');
+var fs=require('fs');
+var json2csv = require('json2csv').parse;
+var cors = require('cors');
+
+function Employee(eno, ename, sal)
+{       
+    this.Name = eno;
+    this.Designation = ename;
+    this.Salary = sal;
+};
+
+var Employees = [];
+
+obj.from.path('../serverSide/data.csv').to.array(function (data) {
+    for (var index = 0; index <  data.length; index++) {
+        Employees.push(new Employee(data[index][0], data[index][1], data[index][2] ));
+    }
+    console.log(Employees);
+});
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(cors())
+
+app.get("/", function(req, res, next) {
+  res.send(Employees);
+});
+
+
+app.post('/addemp', function(request, response){
+    var fields = ['Name', 'Designation', 'Salary'];
+    console.log(request.body);
+
+var appendThis =  "\n"+request.body.Name+","+request.body.Designation+","+request.body.Salary
+
+console.log(csv);
+    fs.appendFile('data.csv', appendThis, function (err) {
+        if (err) throw err;
+        console.log('The "data to append" was appended to file!');
+        response.send("Added Successfully");
+    });
+    console.log(request.body);
+});
+
+var port = 5000;
+app.listen(port, () =>
+    console.log("Server started on port  "+port)
+);
+
+
+
+
+package.json==================
+
+{
+  "name": "server_emp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
+
+
+
+
+nav.js=====================
+
+
+import React from 'react'
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import addEmp from './addEmp'; 
+
+export default class Nav extends React.Component {
+
+
+render(){
+    return(
+    
+        <Router>
+        <div className="n">
+          <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <a className="navbar-brand">React Express App</a>
+            <div className="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul className="navbar-nav mr-auto">
+                <li className="nav-item"><Link to={'/addemp'} className="nav-link">Add Employee</Link>
+                </li>
+              </ul>
+              <hr />
+            </div>
+          </nav> <br />
+          <Switch>
+              <Route exact path='/addemp' component={ addEmp } />
+          </Switch>
+        </div>
+      </Router>
+    );
+    }
+
+}
+
+
+============================================================
+
+
+
+
+
+const csvFilePath='height.csv'
+const csv=require('csvtojson')
+
+//var arrin11 = [1,2,4,5,6,7,9,10,14];
+
+csv()
+	 .fromFile(csvFilePath)
+	 .then((jsonObj)=>{
+		 console.log(jsonObj);
+	 var arrin11 = [];
+		 for(var i=0 ; i< jsonObj.length ; i++)
+		 {
+		 arrin11[i]=jsonObj[i].height
+		 console.log(arrin11[i]);
+		 }
+		 buckets(arrin11);
+
+	 })
+
+
+
+function buckets(arrin11){
+
+	//var arr = []
+	var arr1 = []
+	var arr2 = []
+	var arr3 = []
+	//var count = 5;
+	 var i=0;
+
+
+			for(i = 0 ; i < arrin11.length; i ++)
+			{
+				if(150 <= arrin11[i] && arrin11[i] <= 154){
+				 arr1.push(arrin11[i]);
+				}
+				else if(155 <= arrin11[i] && arrin11[i] <= 159){
+					arr2.push(arrin11[i]);
+				}
+				else if(160 <= arrin11[i] && arrin11[i] <= 164){
+					arr3.push(arrin11[i]);
+				}
+				
+
+			}
+			
+			console.log("Array 1");
+			for (i = 0 ; i < arr1.length ; i++){
+				console.log(arr1[i]);
+			}
+
+			console.log("Array 2");
+			for (i = 0 ; i < arr2.length ; i++){
+				console.log(arr2[i]);
+			}
+
+			console.log("Array 3");
+			for (i = 0 ; i < arr3.length ; i++){
+				console.log(arr3[i]);
+			}
+
+			var arr_len= [arr1.length, arr2.length, arr3.length];
+			console.log("lengths");
+			console.log(arr_len);
+
+			
+		}
+
+
+     
+=============================================================
+
+app.js
+
+import React, {Component} from 'react'
+import * as ReactD3 from 'react-d3-components'
+class App extends Component {
+    
+render() {
+var BarChart = ReactD3.BarChart;
+//for(var i=0 ; i<arr_len.length ; i++)
+ //console.log(arr_len);
+var data = [{
+    label: 'somethingA',
+    values: [{x: 'SomethingA', y: 10}, {x: 'SomethingB', y: 4}, {x: 'SomethingC', y: 3}]
+}];
+ 
+return(
+    <div>
+            {document.getElementById('location')}
+
+    <BarChart
+    
+        data={data}
+        width={400}
+        height={400}
+        margin={{top: 10, bottom: 50, left: 50, right: 10}}/>
+        </div>
+);
+}
+}
+ export default App;
+
+
+ ================================================
+
+ height
+163
+156
+150
+155
+150
+151
+159
+152
+160
+177
+163
+158
+160
+156
+153
+
+
+============================================
+
+height.js
+
+
+var express = require("express");
+//var csv = require('csv');
+var fs=require('fs');
+
+//var app = express();
+var Employees = [];
+    var min=150; 
+    var max=180;  
+    var randomnumber = Math.floor(Math.random() * (+max - +min)) + +min+"\n"; 
+    
+    Employees.push(randomnumber);
+fs.appendFile('height.csv', randomnumber, function (err) {
+    var count=1;
+    if (err) throw err;
+    console.log('The "data to append" was appended to file!');
+    console.log(Employees);
+    count++;
+});
+
+console.log(Employees);
+
+
+=================================================
+
+app
+
+
+
+import React, {Component} from 'react'
+import * as ReactD3 from 'react-d3-components'
+
+/*
+        <td className="heights">{JSON.stringify(value.details).replace(/"/g," ").substring(1,JSON.stringify(value.details).replace(/"/g," ").length-1)} </td>
+ */
+
+
+
+class App extends Component {
+        state = {  };
+
+        
+        componentDidMount() {
+
+           fetch('http://localhost:5000/')
+                  // when we get a response map the body to json
+                  .then(response => response.json())
+ 
+                 // and update the state data to said json
+                  .then(data => {this.setState({ data });
+                alert(data)}
+                  
+                  );
+              }
+            
+              renderTable = () =>
+  {
+
+    return this.state.data[0].values.map(value=>{
+    return (
+
+      <tr>
+            
+        <td>{value.x} </td>
+        <td>{value.y} </td>
+      </tr>
+    )
+    
+    })  
+    
+  }  
+
+  scale = value => { 
+        // some color selection
+        return 'rgb(255, 72, 0)';//'rgb(68, 105, 173)';
+    };
+    
+    render() {
+
+        var BarChart = ReactD3.BarChart;
+ 
+       return (
+          <div className='App'>
+            <div className='App-header'>
+            <h2 className="histogram"> App </h2>
+            </div>
+            <br/>
+            <label className="ylabel"> No. of people </label>
+            {document.getElementById('location')}
+            <BarChart
+                data={this.dt=this.state.data}
+                width={600}
+                height={500}
+                margin={{top: 50, bottom: 50, left: 50, right: 10}}
+                colorScale={this.scale}
+                />
+              <label className="xlabel"> Range of Heights </label>
+    
+              <br/><br/><br/><br/><br/>
+              <h2 className="histogram"> Details </h2>
+                <table>
+                  <tbody>
+                    <tr>
+                      <th> Range </th>
+                      <th> Total </th>
+                    </tr>
+                    {this.state && this.state.data && this.renderTable()}
+    
+                  </tbody>
+                </table>
+                
+    
+            <br/><br/><br/>
+              
+            <br/>
+          <div>
+    
+    
+          </div>
+          </div>
+       )
+       }
+    } export default App;
+
+
+
+
+
+    ================================
+
+
+    navbarSupportedContent
+
+
+const csvFilePath='height.csv'
+const csv=require('csvtojson')
+var bodyParser = require("body-parser");
+
+var express = require("express");
+
+var cors = require('cors');
+
+var app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(cors())
+
+var myObj
+//var arrin11 = [1,2,4,5,6,7,9,10,14];
+      /*var arr1 = []
+	  var arr2 = []
+	  var arr3 = []
+	  var arr4 = []
+	  var arr5 = []
+	  var arr6 = []
+*/
+	
+csv()
+	 .fromFile(csvFilePath)
+	 .then((jsonObj)=>{
+		 console.log(jsonObj);
+	 var arrin11 = [];
+		 for(var i=0 ; i< jsonObj.length ; i++)
+		 {
+		 arrin11[i]=jsonObj[i].height
+		 console.log(arrin11[i]);
+		 }
+		 buckets(arrin11);
+
+	 })
+
+
+
+function buckets(arrin11){
+
+var arrlu = [] 
+var count=0;
+
+for (var i = 150 ; i<=180 ; i++)
+     {
+		 arrlu.push([i, i+4]);
+		 count++;
+		 i += 5; 
+	 }
+	 console.log(arrlu);
+	 console.log(count);
+	 
+	 var sorted =new Array(count)
+	 console.log(sorted);
+
+
+var m = 0
+		 
+for (var x = 0 ; x < arrlu.length ; x++)
+{
+	var n = 0
+
+for(var y = 0 ; y < arrin11.length ; y ++)
+console.log(sorted);
+
+
+	 {   if(arrlu [x][0] <= arrin11[y] && arrin11[y] <= arrlu [x][1]){
+			sorted[m][n].push(arrin11[x]) 
+			n++
+			//j++
+			//sorted[i].push(arrin11[x]);
+		 }
+		 m++
+		 //console.log("array"+i)
+		 //console.log(sorted[i]);
+	 }
+	 console.log('sorted')
+	 console.log(sorted[0])
+}
+//for (i=0; i <count; i++)
+//sorted[i]=new Array(4)
+
+	//var arr = []
+	var arr1 = []
+	var arr2 = []
+	var arr3 = []
+	//var count = 5;
+  var i=0;
+
+
+			for(i = 0 ; i < arrin11.length; i ++)
+			{
+				if(150 <= arrin11[i] && arrin11[i] <= 154){
+				 arr1.push(arrin11[i]);
+				}
+				else if(155 <= arrin11[i] && arrin11[i] <= 159){
+					arr2.push(arrin11[i]);
+				}
+				else if(160 <= arrin11[i] && arrin11[i] <= 164){
+					arr3.push(arrin11[i]);
+				}
+				
+
+			}
+			
+			console.log("Array 1");
+			for (i = 0 ; i < arr1.length ; i++){
+				console.log(arr1[i]);
+			}
+
+			console.log("Array 2");
+			for (i = 0 ; i < arr2.length ; i++){
+				console.log(arr2[i]);
+			}
+
+			console.log("Array 3");
+			for (i = 0 ; i < arr3.length ; i++){
+				console.log(arr3[i]);
+			}
+
+			var arr_len= [arr1.length, arr2.length, arr3.length];
+			console.log("lengths");
+			console.log(arr_len);
+			myObj = [{
+				values : [
+					 {"x" : arrlu[0], "y": arr_len[0] },
+					 {"x" : arrlu[1], "y": arr_len[1] },
+					 {"x" : arrlu[2], "y": arr_len[2] }
+				]
+			}]
+			console.log(myObj[0]);
+
+
+			app.get("/", function(req, res, next) {
+				res.send(JSON.stringify(myObj));
+			  });
+		
+		}
+
+var port = 5001;
+app.listen(port, () =>
+    console.log("Server started on port  "+port)
+);
+
+
+
+     
+
+
+
+
+
+
+
+
